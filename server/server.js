@@ -1,6 +1,9 @@
 import express from 'express';
 import mongoose from 'mongoose';
 import dotenv from 'dotenv';
+import authRoutes from './routes/auth.routes.js';
+
+
 
 dotenv.config();
 
@@ -23,9 +26,7 @@ async function connectDB(){
 connectDB();
 
 
-app.get('/api/health', (req,res)=>{
-    res.json({status:'ok',message:'Server is running'});
-});
+app.use('/api/auth',authRoutes);
 
 
 app.listen(PORT,()=>{
