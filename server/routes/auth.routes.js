@@ -4,7 +4,7 @@ import UserModel from '../models/user.model.js'
 import mongoose from 'mongoose';
 import jwt from "jsonwebtoken";
 import dotenv from "dotenv";
-
+import authMiddleware from '../middleware/auth.middleware.js';
 
 dotenv.config();
 
@@ -78,4 +78,12 @@ router.post('/login', async (req, res) => {
     }
 });
 
+
+
+router.get("/me", authMiddleware, (req, res) => {
+    return res.status(200).json({
+        message: "Authorized",
+        user: req.user,
+    });
+});
 export default router;

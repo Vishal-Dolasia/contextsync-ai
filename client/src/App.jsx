@@ -1,8 +1,21 @@
-function App() {
-  return (
-    <h1 className="text-3xl font-bold text-blue-600 text-center mt-10">
-      Tailwind is working!
-    </h1>
+import { Routes, Route } from "react-router-dom";
+import Login from "./pages/Login.jsx";
+import Register from "./pages/Register.jsx";
+import ProtectedRoute from "./components/ProtectedRoute.jsx";
+import Dashboard from "./pages/Dashboard.jsx";
+
+
+function App(){
+  return(
+      <Routes>
+        <Route path="/login" element={<Login />} />
+        <Route path="/register" element={<Register />} />
+        <Route path="/dashboard" element={
+          <ProtectedRoute>
+            <Dashboard />
+          </ProtectedRoute>
+          }/>
+      </Routes>
   )
 }
 
