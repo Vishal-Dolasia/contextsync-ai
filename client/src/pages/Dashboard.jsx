@@ -1,17 +1,17 @@
-import React from "react";
+import React, { use, useEffect } from "react";
 import useAuth from "../hooks/useAuth";
-import {useNavigate} from "react-router-dom";
+import { data, useNavigate } from "react-router-dom";
+
 
 function Dashboard() {
-    const {setToken} = useAuth();
+    const { setToken } = useAuth();
     const navigate = useNavigate();
+
     const handleLogout = () => {
         localStorage.removeItem("token");
         setToken(null);
-        navigate("/login")
-    }
-
-
+        navigate("/login");
+    };
 
     return (
         <div className="min-h-screen bg-gray-100">
@@ -21,22 +21,38 @@ function Dashboard() {
                 </h1>
 
                 <button
-                    className="bg-red-500 text-white px-5 py-2 rounded-lg hover:bg-red-600 transition"
+                    className="bg-red-500 hover:bg-red-600 text-white px-5 py-2 rounded-lg transition"
                     onClick={handleLogout}
                 >
                     Logout
                 </button>
             </nav>
 
-            <main className="p-8">
+            <main className="max-w-5xl mx-auto p-8">
                 <div className="bg-white rounded-xl shadow-md p-8">
-                    <h2 className="text-3xl font-bold text-gray-800 mb-2">
+                    <h2 className="text-3xl font-bold text-gray-800 mb-3">
                         Welcome!
                     </h2>
 
-                    <p className="text-gray-600">
+                    <p className="text-gray-600 mb-8">
                         You are successfully logged in.
                     </p>
+
+                    <div className="flex gap-4">
+                        <button
+                            className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-medium transition"
+                            onClick={()=>navigate("/clients")}
+                        >
+                            View Clients
+                        </button>
+
+                        <button
+                            className="bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-lg font-medium transition"
+                            
+                        >
+                            Add Client
+                        </button>
+                    </div>
                 </div>
             </main>
         </div>

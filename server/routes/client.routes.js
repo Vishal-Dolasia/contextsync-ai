@@ -1,6 +1,7 @@
 import express from 'express';
 import authMiddleware from '../middleware/auth.middleware.js';
 import clientModel from '../models/client.model.js'
+import mongoose from 'mongoose';
 
 const router = express.Router();
 
@@ -53,4 +54,102 @@ router.get("/",authMiddleware,async(req,res)=>{
 
 })
 
+
+router.get("/:id",authMiddleware,async(req,res)=>{
+    const clientId = req.params.id;
+    const owner = req.user.id;
+
+    try{
+        const client = await clientModel.findOne({
+            _id : clientId,
+            owner : owner
+        })
+        if(client === null){
+            return res.status(404).json({
+                message: "Client not found"
+            });
+        }
+        else{
+            return res.status(200).json({
+                message: "Client found",
+                client: client
+            });
+        }
+    }catch(err){
+        res.status(400).json({
+            message:"Some error"
+        })
+    }
+})
+
+
+router.patch("/:id",authMiddleware,async(req,res)=>{
+    const clientId = req.params.id;
+    const owner = req.user.id;
+    const {
+        name,
+        email,
+        phone,
+        company,
+        notes
+    } = req.body;
+
+    try{
+        const client = await clientModel.findOneAndUpdate({
+            _id : clientId,
+            owner : owner,
+        },{
+            $set :{
+                name,
+                email,
+                phone,
+                company,
+                notes,
+            }
+        },{
+            new :true,
+        })
+        if(client === null){
+            return res.status(404).json({
+                message:"Client was not found",
+            })
+        }
+        return res.status(200).json({
+            message : "Client updated successfully",
+            client
+        })
+    }catch(err){
+        return res.status(500).json({
+            message:"Server error",
+        })
+    }
+
+})
+
+
+router.delete("/:id",authMiddleware,async (req,res)=>{
+    const clientId = req.params.id;
+    const owner = req.user.id;
+    try{
+        const client = await clientModel.findOneAndDelete({
+            _id:clientId,
+            owner
+        })
+
+        if(client){
+            return res.status(200).json({
+                message:"Client deleted successfully",
+            })
+        }else{
+            return res.status(404).json({
+                message:"Client was not found",
+            })
+        }
+    }catch(err){
+        return res.status(500).json({
+            message:"Server error",
+        })
+    }
+
+})
 export default router;

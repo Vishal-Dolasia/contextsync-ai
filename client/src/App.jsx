@@ -3,7 +3,7 @@ import Login from "./pages/Login.jsx";
 import Register from "./pages/Register.jsx";
 import ProtectedRoute from "./components/ProtectedRoute.jsx";
 import Dashboard from "./pages/Dashboard.jsx";
-
+import Clients from "./pages/Clients.jsx";
 
 function App(){
   return(
@@ -13,6 +13,11 @@ function App(){
         <Route path="/dashboard" element={
           <ProtectedRoute>
             <Dashboard />
+          </ProtectedRoute>
+          }/>
+        <Route path="/clients" element = {
+          <ProtectedRoute>
+            <Clients />
           </ProtectedRoute>
           }/>
       </Routes>
