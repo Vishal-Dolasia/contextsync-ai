@@ -1,5 +1,4 @@
-// NOTE: This file contains your existing Clients page plus a UI-only Add Client modal.
-// Replace the placeholder comments with your own logic later.
+
 
 import React from "react";
 import { useState, useEffect } from "react";

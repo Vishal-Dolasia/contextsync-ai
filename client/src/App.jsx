@@ -4,6 +4,8 @@ import Register from "./pages/Register.jsx";
 import ProtectedRoute from "./components/ProtectedRoute.jsx";
 import Dashboard from "./pages/Dashboard.jsx";
 import Clients from "./pages/Clients.jsx";
+import Meetings from "./pages/Meetings.jsx"
+
 
 function App(){
   return(
@@ -18,6 +20,11 @@ function App(){
         <Route path="/clients" element = {
           <ProtectedRoute>
             <Clients />
+          </ProtectedRoute>
+          }/>
+        <Route path="/meetings" element = {
+          <ProtectedRoute>
+            <Meetings />
           </ProtectedRoute>
           }/>
       </Routes>
