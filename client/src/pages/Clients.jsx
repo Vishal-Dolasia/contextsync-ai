@@ -1,5 +1,3 @@
-
-
 import React from "react";
 import { useState, useEffect } from "react";
 import api from "../api/api";
@@ -14,7 +12,10 @@ function Clients() {
   const [company, setCompany] = useState("");
   const [notes, setNotes] = useState("");
   const [loading, setLoading] = useState(true);
-
+  const [search,setSearch] = useState("");
+  const [debouncedSearch,setDebouncedSearch] = useState(search);
+  const [sort, setSort] = useState("");
+  
   const handleSubmit = async () => {
     if (!name.trim()) {
       alert("Name is required");
@@ -39,7 +40,7 @@ function Clients() {
         });
       }
 
-      getAllClients();
+      fetchClients();
 
       setIsOpen(false);
 
@@ -64,12 +65,19 @@ function Clients() {
     setIsOpen(true);
   };
 
-  const getAllClients = async () => {
-    setLoading(true);
+  const fetchClients = async () => {
     try {
-      const response = await api.get("/api/clients");
+      const response = await api.get(`/api/clients?search=${debouncedSearch}&sort=${sort}`);
       setClients(response.data.data);
     } catch (err) {
+      console.log(err);
+    }
+  };
+  const loadClients = async () => {
+    setLoading(true);
+    try{
+      await fetchClients();
+    }catch(err){
       console.log(err);
     }
     setLoading(false);
@@ -95,16 +103,29 @@ function Clients() {
     if (!confirmDelete) return;
     try {
       await api.delete(`/api/clients/${id}`);
-      getAllClients();
+      fetchClients();
     } catch (err) {
       console.log(err);
     }
   };
   
-  
   useEffect(() => {
-    getAllClients();
+    fetchClients();
+  }, [debouncedSearch,sort]);
+  useEffect(() => {
+    loadClients();
   }, []);
+
+  useEffect(() => {
+    const timer = setTimeout(()=>{
+      setDebouncedSearch(search);
+    },500);
+
+    return ()=>{
+      clearTimeout(timer);
+    }
+  }, [search]);
+  
 
   if (loading) {
       return (
@@ -128,6 +149,32 @@ function Clients() {
             + Add Client
           </button>
         </div>
+
+        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-8">
+          <div className="mb-8">
+            <input
+              type="text"
+              placeholder="🔍 Search clients by name, email or company..."
+              className="w-full md:w-96 px-4 py-3 border border-gray-300 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition"
+              onChange={(e) => setSearch(e.target.value)}
+              value={search}
+              />
+          </div>
+
+            <div>
+          <select
+            value = {sort} 
+            onChange={(e)=>setSort(e.target.value)} 
+            className="w-full md:w-60 px-4 py-3 border border-gray-300 rounded-xl shadow-sm bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition"
+          >
+            <option value="">Sort By</option>
+            <option value="az">Name (A-Z)</option>
+            <option value="za">Name (Z-A)</option>
+            <option value="newest">Newest</option>
+            <option value="oldest">Oldest</option>
+          </select>
+        </div>
+      </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {clients.length === 0 ? (

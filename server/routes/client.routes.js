@@ -38,13 +38,48 @@ router.get("/",authMiddleware,async(req,res)=>{
     
     try{
         const owner = req.user.id;
-        const data = await clientModel.find({
-            owner : owner
-        });
+        const query = req.query.search;
+        const sort = req.query.sort;
+        let data;
+        let sortOption = {};
+
+        if (sort === "az") {
+        sortOption = { name: 1 };
+        } else if (sort === "za") {
+        sortOption = { name: -1 };
+        } else if (sort === "newest") {
+        sortOption = { createdAt: -1 };
+        } else if (sort === "oldest") {
+        sortOption = { createdAt: 1 };
+        }
+        if(!query){
+            data = await clientModel.find({
+                owner : owner
+            }).sort(sortOption);
+        }
+        else{
+            data = await clientModel.find({
+                owner,
+                $or:[
+                    {name : {
+                        $regex : query,
+                        $options : "i",
+                    }},
+                    {email : {
+                        $regex : query,
+                        $options : "i",
+                    }},
+                    {company : {
+                        $regex : query,
+                        $options : "i",
+                    }},
+                ]
+            }).sort(sortOption);
+        }
         res.status(200).json({
             message:"Collected all the data",
             data : data
-        })
+        })          
     }catch(err){
         console.log(err);
         return res.status(500).json({

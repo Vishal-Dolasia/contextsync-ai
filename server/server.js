@@ -4,7 +4,7 @@ import dotenv from 'dotenv';
 import authRoutes from './routes/auth.routes.js';
 import cors from 'cors';
 import clientRoutes from './routes/client.routes.js';
-
+import meetingRoutes from './routes/meeting.routes.js'
 dotenv.config();
 
 const app = express();
@@ -28,6 +28,7 @@ connectDB();
 
 app.use('/api/auth',authRoutes);
 app.use('/api/clients',clientRoutes);
+app.use('/api/meetings',meetingRoutes);
 
 
 app.listen(PORT,()=>{

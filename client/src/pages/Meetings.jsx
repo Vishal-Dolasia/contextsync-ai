@@ -9,36 +9,62 @@ function Meetings() {
   const [description, setDescription] = useState("");
   const [date, setDate] = useState("");
   const [time, setTime] = useState("");
-  const [status, setStatus] = useState("Scheduled");
+  const [status, setStatus] = useState("scheduled");
   const [client, setClient] = useState("");
   const [loading, setLoading] = useState(true);
   const [clients, setClients] = useState([]);
+  const [search, setSearch] = useState("");
+  const [debouncedSearch, setDebouncedSearch] = useState(search);
+  const [sort, setSort] = useState("");
 
-  const getAllMeetings = async () => {
+  const fetchMeetings = async () => {
+    try {
+      const response = await api.get(
+        `/api/meetings?search=${debouncedSearch}&sort=${sort}`
+      );
+      setMeetings(response.data.data);
+    } catch (err) {
+      console.log(err);
+    }
+  };
+
+  const loadMeetings = async () => {
     setLoading(true);
     try {
-      const response = await api.get("/api/meetings");
-      setMeetings(response.data.data);
+      await fetchMeetings();
     } catch (err) {
       console.log(err);
     }
     setLoading(false);
   };
 
-
-  const getAllClients = async()=>{
-    try{
+  const getAllClients = async () => {
+    try {
       const response = await api.get("/api/clients");
       setClients(response.data.data);
-    }catch(err){
+    } catch (err) {
       console.log(err);
     }
-  }
+  };
 
   useEffect(() => {
-    getAllMeetings();
+    fetchMeetings();
+  }, [debouncedSearch, sort]);
+
+  useEffect(() => {
+    loadMeetings();
     getAllClients();
   }, []);
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedSearch(search);
+    }, 500);
+
+    return () => {
+      clearTimeout(timer);
+    };
+  }, [search]);
 
   const handleSubmit = async () => {
     if (!title.trim()) {
@@ -67,8 +93,7 @@ function Meetings() {
         });
       }
 
-      console.log(client);
-      getAllMeetings();
+      fetchMeetings();
       closeModal();
     } catch (err) {
       console.log(err);
@@ -82,7 +107,7 @@ function Meetings() {
     setDate(meeting.date);
     setTime(meeting.time);
     setStatus(meeting.status);
-    setClient(meeting.client?._id || ""); // TODO: change after populate/dropdown
+    setClient(meeting.client?._id || "");
     setIsOpen(true);
   };
 
@@ -94,7 +119,7 @@ function Meetings() {
 
     try {
       await api.delete(`/api/meetings/${id}`);
-      getAllMeetings();
+      fetchMeetings();
     } catch (err) {
       console.log(err);
     }
@@ -133,6 +158,32 @@ function Meetings() {
           </button>
         </div>
 
+        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-8">
+          <div className="mb-8">
+            <input
+              type="text"
+              placeholder="Search meetings..."
+              className="w-full md:w-96 px-4 py-3 border border-gray-300 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition"
+              onChange={(e) => setSearch(e.target.value)}
+              value={search}
+            />
+          </div>
+
+          <div>
+            <select
+              value={sort}
+              onChange={(e) => setSort(e.target.value)}
+              className="w-full md:w-60 px-4 py-3 border border-gray-300 rounded-xl shadow-sm bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition"
+            >
+              <option value="">Sort By</option>
+              <option value="az">Title (A-Z)</option>
+              <option value="za">Title (Z-A)</option>
+              <option value="newest">Newest</option>
+              <option value="oldest">Oldest</option>
+            </select>
+          </div>
+        </div>
+
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {meetings.length === 0 ? (
             <div className="col-span-full text-center py-10">
@@ -158,10 +209,19 @@ function Meetings() {
                     <span className="font-semibold">Client:</span>{" "}
                     {meeting.client ? meeting.client.name : "No Client"}
                   </p>
-                  <p><span className="font-semibold">Date:</span> {meeting.date}</p>
-                  <p><span className="font-semibold">Time:</span> {meeting.time}</p>
-                  <p><span className="font-semibold">Status:</span> {meeting.status}</p>
-                  <p><span className="font-semibold">Description:</span> {meeting.description}</p>
+                  <p>
+                    <span className="font-semibold">Date:</span> {meeting.date}
+                  </p>
+                  <p>
+                    <span className="font-semibold">Time:</span> {meeting.time}
+                  </p>
+                  <p>
+                    <span className="font-semibold">Status:</span> {meeting.status}
+                  </p>
+                  <p>
+                    <span className="font-semibold">Description:</span>{" "}
+                    {meeting.description}
+                  </p>
                 </div>
 
                 <div className="flex gap-3 mt-6">
@@ -184,12 +244,11 @@ function Meetings() {
           )}
         </div>
 
-        {/* TODO: Replace client input with dropdown after implementing client fetch */}
         {isOpen && (
           <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
             <div className="bg-white w-full max-w-xl rounded-2xl shadow-2xl p-8">
               <div className="flex items-center justify-between mb-8">
-                <h2 className="text-3xl font-bold">
+                <h2 className="text-3xl font-bold text-gray-800">
                   {editingId ? "Edit Meeting" : "Add New Meeting"}
                 </h2>
 
@@ -202,32 +261,64 @@ function Meetings() {
               </div>
 
               <div className="space-y-5">
-                <input value={title} onChange={(e)=>setTitle(e.target.value)} type="text" placeholder="Meeting Title" className="w-full border rounded-lg px-4 py-3"/>
-                <textarea value={description} onChange={(e)=>setDescription(e.target.value)} rows="3" placeholder="Description" className="w-full border rounded-lg px-4 py-3"/>
-                <input value={date} onChange={(e)=>setDate(e.target.value)} type="date" className="w-full border rounded-lg px-4 py-3"/>
-                <input value={time} onChange={(e)=>setTime(e.target.value)} type="time" className="w-full border rounded-lg px-4 py-3"/>
-                <input value={status} onChange={(e)=>setStatus(e.target.value)} type="text" placeholder="Status" className="w-full border rounded-lg px-4 py-3"/>
+                <input
+                  value={title}
+                  onChange={(e) => setTitle(e.target.value)}
+                  type="text"
+                  placeholder="Meeting Title"
+                  className="w-full border rounded-lg px-4 py-3 outline-none focus:ring-2 focus:ring-blue-500"
+                />
+                <textarea
+                  value={description}
+                  onChange={(e) => setDescription(e.target.value)}
+                  rows="3"
+                  placeholder="Description"
+                  className="w-full border rounded-lg px-4 py-3 resize-none outline-none focus:ring-2 focus:ring-blue-500"
+                />
+                <input
+                  value={date}
+                  onChange={(e) => setDate(e.target.value)}
+                  type="date"
+                  className="w-full border rounded-lg px-4 py-3 outline-none focus:ring-2 focus:ring-blue-500"
+                />
+                <input
+                  value={time}
+                  onChange={(e) => setTime(e.target.value)}
+                  type="time"
+                  className="w-full border rounded-lg px-4 py-3 outline-none focus:ring-2 focus:ring-blue-500"
+                />
+                <input
+                  value={status}
+                  onChange={(e) => setStatus(e.target.value)}
+                  type="text"
+                  placeholder="Status"
+                  className="w-full border rounded-lg px-4 py-3 outline-none focus:ring-2 focus:ring-blue-500"
+                />
                 <select
                   value={client}
                   onChange={(e) => setClient(e.target.value)}
-                  className="w-full border rounded-lg px-4 py-3"
+                  className="w-full border rounded-lg px-4 py-3 outline-none focus:ring-2 focus:ring-blue-500"
                 >
-                    <option value="">
-                      Select Client
+                  <option value="">Select Client</option>
+                  {clients.map((client) => (
+                    <option key={client._id} value={client._id}>
+                      {client.name}
                     </option>
-                  {
-                    clients.map((client) => (
-                      <option key={client._id} value={client._id}>
-                        {client.name}
-                      </option>
-                    ))
-                  }
+                  ))}
                 </select>
               </div>
 
               <div className="flex justify-end gap-4 mt-8">
-                <button onClick={closeModal} className="px-6 py-3 border rounded-lg hover:bg-gray-100">Cancel</button>
-                <button onClick={handleSubmit} className="px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-lg">
+                <button
+                  onClick={closeModal}
+                  className="px-6 py-3 border rounded-lg hover:bg-gray-100"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={handleSubmit}
+                  className="px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-lg"
+                >
                   {editingId ? "Update Meeting" : "Save Meeting"}
                 </button>
               </div>
