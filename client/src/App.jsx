@@ -5,6 +5,7 @@ import ProtectedRoute from "./components/ProtectedRoute.jsx";
 import Dashboard from "./pages/Dashboard.jsx";
 import Clients from "./pages/Clients.jsx";
 import Meetings from "./pages/Meetings.jsx"
+import MeetingRoom from "./pages/MeetingRoom.jsx";
 
 
 function App(){
@@ -25,6 +26,11 @@ function App(){
         <Route path="/meetings" element = {
           <ProtectedRoute>
             <Meetings />
+          </ProtectedRoute>
+          }/>
+        <Route path="/meeting/:id" element = {
+          <ProtectedRoute>
+            <MeetingRoom />
           </ProtectedRoute>
           }/>
       </Routes>

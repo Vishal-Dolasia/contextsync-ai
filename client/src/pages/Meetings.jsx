@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import api from "../api/api";
+import { useNavigate } from "react-router-dom";
 
 function Meetings() {
   const [meetings, setMeetings] = useState([]);
@@ -16,6 +17,7 @@ function Meetings() {
   const [search, setSearch] = useState("");
   const [debouncedSearch, setDebouncedSearch] = useState(search);
   const [sort, setSort] = useState("");
+  const navigate = useNavigate();
 
   const fetchMeetings = async () => {
     try {
@@ -225,6 +227,13 @@ function Meetings() {
                 </div>
 
                 <div className="flex gap-3 mt-6">
+                    <button
+                      onClick={()=>{navigate(`/meeting/${meeting._id}`)}}
+                      className="flex-1 bg-green-600 hover:bg-green-700 text-white py-2 rounded-lg transition"
+                    >
+                      Join Meeting
+                    </button>
+                  </div>
                   <button
                     onClick={() => handleEdit(meeting)}
                     className="flex-1 bg-yellow-500 hover:bg-yellow-600 text-white py-2 rounded-lg transition"
@@ -239,7 +248,6 @@ function Meetings() {
                     Delete
                   </button>
                 </div>
-              </div>
             ))
           )}
         </div>

@@ -5,6 +5,11 @@ import authRoutes from './routes/auth.routes.js';
 import cors from 'cors';
 import clientRoutes from './routes/client.routes.js';
 import meetingRoutes from './routes/meeting.routes.js'
+import livekitRoutes from './routes/livekit.routes.js';
+
+
+
+
 dotenv.config();
 
 const app = express();
@@ -29,7 +34,7 @@ connectDB();
 app.use('/api/auth',authRoutes);
 app.use('/api/clients',clientRoutes);
 app.use('/api/meetings',meetingRoutes);
-
+app.use('/api/livekit',livekitRoutes);
 
 app.listen(PORT,()=>{
     console.log(`Server running on Port ${PORT}`);
