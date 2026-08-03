@@ -1,8 +1,13 @@
 import express from 'express';
-import {AccessToken} from 'livekit-server-sdk';
+import {AccessToken, LiveKitAPI} from 'livekit-server-sdk';
 import dotenv from 'dotenv';
 import userModel from '../models/user.model.js';
 import authMiddleware from '../middleware/auth.middleware.js';
+
+
+
+const api = new LiveKitAPI();
+
 
 
 const router = express.Router();
@@ -15,8 +20,6 @@ router.post('/token',authMiddleware,async (req,res)=>{
                 message:"Room name is required."
             });
         }
-
-
         const owner = req.user.id
         const user = await userModel.findById(owner);
         if (!user) {
@@ -37,6 +40,18 @@ router.post('/token',authMiddleware,async (req,res)=>{
             roomJoin : true,
         })
         const jwt = await token.toJwt();
+
+
+        await api.agentDispatch.createDispatch(
+            roomName,
+            "contextsync-transcriber",
+            {
+                metadata: JSON.stringify({
+                    userId:user._id.toString(),
+                    userName : user.name,
+                }),
+            }
+        )
         return res.status(200).json({
             message:"Token generated successfully",
             token : jwt,

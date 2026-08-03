@@ -1,0 +1,21 @@
+{
+  "name": "agent",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev": "node index.js dev",
+    "start": "node index.js start"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "module",
+  "dependencies": {
+    "@livekit/agents": "^1.6.1",
+    "@livekit/agents-plugin-deepgram": "^1.6.1",
+    "@livekit/rtc-node": "^0.13.33",
+    "dotenv": "^17.4.2"
+  }
+}

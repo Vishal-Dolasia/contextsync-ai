@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import api from '../api/api.js';
 import {
   LiveKitRoom,
@@ -11,11 +11,14 @@ function MeetingRoom() {
     const [token, setToken] = useState("");
     const [serverUrl, setServerUrl] = useState("");
 
+    const navigate = useNavigate();
+
     const requestToken = async(roomName) => {
         try{
             const response = await api.post('/api/livekit/token',{
                 roomName,
             });
+            console.log("Requesting token...");
             setToken(response.data.token);
             setServerUrl(response.data.url);
         }catch(err){
@@ -27,11 +30,12 @@ function MeetingRoom() {
         if(meeting?._id){
             requestToken(meeting._id);
         }
-    },[meeting]);
+    },[meeting?._id]);
 
     const fetchMeeting = async (id) => {
         try{
             const response = await api.get(`/api/meetings/${id}`);
+            console.log("Fetching meeting...");
             setMeeting(response.data.meeting);
         }catch(err){
             console.log(err);
@@ -61,6 +65,7 @@ function MeetingRoom() {
         )
     }
 
+
     return (
         <LiveKitRoom
             token={token}
@@ -69,6 +74,9 @@ function MeetingRoom() {
             video={true}
             audio={true}
             className="h-screen"
+            onDisconnected={()=>{
+                navigate("/meetings");
+            }}
         >
             <VideoConference />
         </LiveKitRoom>
