@@ -6,7 +6,7 @@ import Dashboard from "./pages/Dashboard.jsx";
 import Clients from "./pages/Clients.jsx";
 import Meetings from "./pages/Meetings.jsx"
 import MeetingRoom from "./pages/MeetingRoom.jsx";
-
+import Transcript from "./pages/Transcript.jsx";
 
 function App(){
   return(
@@ -33,6 +33,14 @@ function App(){
             <MeetingRoom />
           </ProtectedRoute>
           }/>
+        <Route
+          path="/meetings/:id/transcript"
+          element={
+              <ProtectedRoute>
+                  <Transcript />
+              </ProtectedRoute>
+          }
+      />  
       </Routes>
   )
 }

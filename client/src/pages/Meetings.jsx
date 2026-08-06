@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import  { useState, useEffect } from "react";
 import api from "../api/api";
 import { useNavigate } from "react-router-dom";
 
@@ -226,27 +226,37 @@ function Meetings() {
                   </p>
                 </div>
 
-                <div className="flex gap-3 mt-6">
-                    <button
-                      onClick={()=>{navigate(`/meeting/${meeting._id}`)}}
-                      className="flex-1 bg-green-600 hover:bg-green-700 text-white py-2 rounded-lg transition"
-                    >
-                      Join Meeting
-                    </button>
-                  </div>
+                <div className="grid grid-cols-2 gap-3 mt-6">
+
                   <button
-                    onClick={() => handleEdit(meeting)}
-                    className="flex-1 bg-yellow-500 hover:bg-yellow-600 text-white py-2 rounded-lg transition"
+                      onClick={() => navigate(`/meeting/${meeting._id}`)}
+                      className="bg-green-600 hover:bg-green-700 text-white py-2 rounded-lg transition"
                   >
-                    Edit
+                      Join Meeting
                   </button>
 
                   <button
-                    onClick={() => handleDelete(meeting._id)}
-                    className="flex-1 bg-red-500 hover:bg-red-600 text-white py-2 rounded-lg transition"
+                      onClick={() => navigate(`/meetings/${meeting._id}/transcript`)}
+                      className="bg-blue-600 hover:bg-blue-700 text-white py-2 rounded-lg transition"
                   >
-                    Delete
+                      View Transcript
                   </button>
+
+                  <button
+                      onClick={() => handleEdit(meeting)}
+                      className="bg-yellow-500 hover:bg-yellow-600 text-white py-2 rounded-lg transition"
+                  >
+                      Edit
+                  </button>
+
+                  <button
+                      onClick={() => handleDelete(meeting._id)}
+                      className="bg-red-500 hover:bg-red-600 text-white py-2 rounded-lg transition"
+                  >
+                      Delete
+                  </button>
+
+              </div>
                 </div>
             ))
           )}

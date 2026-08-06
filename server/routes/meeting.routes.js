@@ -1,6 +1,7 @@
 import express from 'express';
 import authMiddleware from '../middleware/auth.middleware.js';
 import meetingModel from '../models/meeting.model.js';
+import transcriptModel from "../models/transcript.model.js";
 
 const router = express.Router();
 
@@ -107,6 +108,49 @@ router.get('/:id', authMiddleware, async (req, res) => {
     res.status(400).json({ message: 'Some error' });
   }
 });
+
+
+router.get('/:id/transcript',authMiddleware,async(req,res)=>{
+  try{
+    
+    const meetingId = req.params.id;
+    const owner = req.user.id;
+  
+    const meeting = await meetingModel.findOne({
+      _id:meetingId,
+      owner,
+    });
+  
+  
+    if(!meeting){
+      return res.status(404).json({
+        message: "Meeting not found",
+      });
+    }
+  
+    const transcript = await transcriptModel.findOne({
+      meetingId,
+    })
+  
+    if(!transcript){
+      return res.status(404).json({
+        message : "transcript not found"
+      })
+    }
+    return res.status(200).json({
+        message: "Transcript fetched successfully",
+        transcript,
+    });
+  }catch(err){
+    console.log(err);
+
+    return res.status(500).json({
+        message: "Server error",
+    });
+    
+  }
+})
+
 
 // Update meeting
 router.patch('/:id', authMiddleware, async (req, res) => {
