@@ -22,6 +22,7 @@ export default defineAgent({
             model: "flux-general-en",
             sampleRate: 48000,
         });
+        const transcript = [];
 
         console.log("Deepgram initialized");
         
@@ -30,7 +31,9 @@ export default defineAgent({
 
         const participant = await ctx.waitForParticipant();
 
-        console.log(`Participant joined: ${participant.identity}`);
+        const participantInfo = JSON.parse(participant.metadata);
+
+        console.log(participantInfo); 
 
 
         ctx.room.on(RoomEvent.TrackSubscribed, async (track, publication, participant) => {
@@ -60,9 +63,13 @@ export default defineAgent({
 
                     // Final transcript only
                     if (event.type === 2) {
-                        console.log(
-                            `[${participant.identity}] ${event.alternatives[0].text}`
-                        );
+                        transcript.push({
+                            speaker: participantInfo.name,
+                            text: event.alternatives[0].text,
+                            timestamp: new Date(),
+                        });
+
+                        console.log(transcript);
                     }
 
                 }
