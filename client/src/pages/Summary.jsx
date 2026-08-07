@@ -12,7 +12,6 @@ function Summary() {
     const fetchSummary = async () => {
         try {
             const response = await api.get(`/api/meetings/${id}/summary`);
-
             setSummary(response.data.summary);
         } catch (err) {
             console.log(err);
@@ -27,108 +26,113 @@ function Summary() {
 
     if (loading) {
         return (
-            <div className="min-h-screen flex items-center justify-center">
-                <h1 className="text-2xl font-semibold">
-                    Loading Summary...
-                </h1>
+            <div className="min-h-screen bg-slate-50 px-4 py-10 sm:px-6 lg:px-8">
+                <div className="mx-auto flex max-w-5xl items-center justify-center rounded-[28px] border border-slate-200 bg-white p-10 shadow-[0_20px_60px_-24px_rgba(15,23,42,0.18)]">
+                    <div className="flex flex-col items-center text-center">
+                        <div className="mb-4 h-10 w-10 animate-spin rounded-full border-2 border-slate-200 border-t-slate-900"></div>
+                        <h1 className="text-xl font-semibold text-slate-900">Loading Summary...</h1>
+                        <p className="mt-2 text-sm text-slate-500">Preparing the AI-generated recap.</p>
+                    </div>
+                </div>
             </div>
         );
     }
 
     return (
-        <div className="min-h-screen bg-gray-100 py-10">
-            <div className="max-w-4xl mx-auto bg-white rounded-xl shadow-lg p-8">
+        <div className="min-h-screen bg-slate-50 py-8 sm:py-10">
+            <div className="mx-auto max-w-5xl rounded-[32px] border border-slate-200 bg-white p-6 shadow-[0_20px_60px_-24px_rgba(15,23,42,0.18)] sm:p-8 lg:p-10">
 
                 <button
                     onClick={() => navigate("/meetings")}
-                    className="mb-6 bg-gray-800 text-white px-4 py-2 rounded-lg hover:bg-gray-700 transition"
+                    className="mb-8 rounded-2xl border border-slate-200 bg-white px-4 py-2 text-sm font-medium text-slate-700 transition hover:bg-slate-50"
                 >
                     ← Back to Meetings
                 </button>
 
-                <h1 className="text-4xl font-bold mb-8">
-                    AI Meeting Summary
-                </h1>
-
-                {/* Summary */}
-
                 <div className="mb-8">
-                    <h2 className="text-2xl font-semibold text-blue-600 mb-3">
-                        📝 Summary
-                    </h2>
-
-                    <p className="text-gray-700 leading-8">
-                        {summary.summary}
-                    </p>
+                    <p className="text-sm font-medium text-slate-500">AI-generated recap</p>
+                    <h1 className="mt-2 text-3xl font-semibold text-slate-900">AI Meeting Summary</h1>
+                    <p className="mt-2 text-sm leading-7 text-slate-600">A structured, documentation-style view of the discussion.</p>
                 </div>
 
-                {/* Action Items */}
+                <div className="grid gap-5 lg:grid-cols-2">
+                    <div className="rounded-[24px] border border-slate-200 bg-slate-50 p-6 shadow-sm">
+                        <div className="mb-4 flex items-center gap-2">
+                            <span className="text-lg">📝</span>
+                            <h2 className="text-xl font-semibold text-slate-900">Summary</h2>
+                        </div>
 
-                <div className="mb-8">
-                    <h2 className="text-2xl font-semibold text-green-600 mb-3">
-                        ✅ Action Items
-                    </h2>
+                        <p className="text-sm leading-8 text-slate-700">
+                            {summary.summary}
+                        </p>
+                    </div>
 
-                    <ul className="list-disc pl-6 space-y-2">
-                        {summary.actionItems.map((item, index) => (
-                            <li key={index}>
-                                {item}
-                            </li>
-                        ))}
-                    </ul>
+                    <div className="rounded-[24px] border border-emerald-200 bg-emerald-50 p-6 shadow-sm">
+                        <div className="mb-4 flex items-center gap-2">
+                            <span className="text-lg">✅</span>
+                            <h2 className="text-xl font-semibold text-emerald-900">Action Items</h2>
+                        </div>
+
+                        <ul className="space-y-2 text-sm leading-7 text-emerald-800">
+                            {summary.actionItems.map((item, index) => (
+                                <li key={index} className="flex gap-2">
+                                    <span className="mt-2 h-2.5 w-2.5 shrink-0 rounded-full bg-emerald-500"></span>
+                                    <span>{item}</span>
+                                </li>
+                            ))}
+                        </ul>
+                    </div>
+
+                    <div className="rounded-[24px] border border-violet-200 bg-violet-50 p-6 shadow-sm">
+                        <div className="mb-4 flex items-center gap-2">
+                            <span className="text-lg">📌</span>
+                            <h2 className="text-xl font-semibold text-violet-900">Key Decisions</h2>
+                        </div>
+
+                        <ul className="space-y-2 text-sm leading-7 text-violet-800">
+                            {summary.keyDecisions.map((item, index) => (
+                                <li key={index} className="flex gap-2">
+                                    <span className="mt-2 h-2.5 w-2.5 shrink-0 rounded-full bg-violet-500"></span>
+                                    <span>{item}</span>
+                                </li>
+                            ))}
+                        </ul>
+                    </div>
+
+                    <div className="rounded-[24px] border border-rose-200 bg-rose-50 p-6 shadow-sm">
+                        <div className="mb-4 flex items-center gap-2">
+                            <span className="text-lg">⚠</span>
+                            <h2 className="text-xl font-semibold text-rose-900">Risks</h2>
+                        </div>
+
+                        {
+                            summary.risks.length === 0 ? (
+                                <p className="text-sm text-rose-700">No risks identified.</p>
+                            ) : (
+                                <ul className="space-y-2 text-sm leading-7 text-rose-800">
+                                    {summary.risks.map((item, index) => (
+                                        <li key={index} className="flex gap-2">
+                                            <span className="mt-2 h-2.5 w-2.5 shrink-0 rounded-full bg-rose-500"></span>
+                                            <span>{item}</span>
+                                        </li>
+                                    ))}
+                                </ul>
+                            )
+                        }
+                    </div>
                 </div>
 
-                {/* Key Decisions */}
+                <div className="mt-5 rounded-[24px] border border-amber-200 bg-amber-50 p-6 shadow-sm">
+                    <div className="mb-4 flex items-center gap-2">
+                        <span className="text-lg">➡</span>
+                        <h2 className="text-xl font-semibold text-amber-900">Next Steps</h2>
+                    </div>
 
-                <div className="mb-8">
-                    <h2 className="text-2xl font-semibold text-purple-600 mb-3">
-                        📌 Key Decisions
-                    </h2>
-
-                    <ul className="list-disc pl-6 space-y-2">
-                        {summary.keyDecisions.map((item, index) => (
-                            <li key={index}>
-                                {item}
-                            </li>
-                        ))}
-                    </ul>
-                </div>
-
-                {/* Risks */}
-
-                <div className="mb-8">
-                    <h2 className="text-2xl font-semibold text-red-600 mb-3">
-                        ⚠ Risks
-                    </h2>
-
-                    {
-                        summary.risks.length === 0 ? (
-                            <p className="text-gray-500">
-                                No risks identified.
-                            </p>
-                        ) : (
-                            <ul className="list-disc pl-6 space-y-2">
-                                {summary.risks.map((item, index) => (
-                                    <li key={index}>
-                                        {item}
-                                    </li>
-                                ))}
-                            </ul>
-                        )
-                    }
-                </div>
-
-                {/* Next Steps */}
-
-                <div>
-                    <h2 className="text-2xl font-semibold text-orange-600 mb-3">
-                        ➡ Next Steps
-                    </h2>
-
-                    <ul className="list-disc pl-6 space-y-2">
+                    <ul className="space-y-2 text-sm leading-7 text-amber-800">
                         {summary.nextSteps.map((item, index) => (
-                            <li key={index}>
-                                {item}
+                            <li key={index} className="flex gap-2">
+                                <span className="mt-2 h-2.5 w-2.5 shrink-0 rounded-full bg-amber-500"></span>
+                                <span>{item}</span>
                             </li>
                         ))}
                     </ul>

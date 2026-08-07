@@ -140,42 +140,52 @@ function Meetings() {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <h1 className="text-2xl font-semibold">Loading Meetings...</h1>
+      <div className="min-h-screen bg-slate-50 px-4 py-10 sm:px-6 lg:px-8">
+        <div className="mx-auto flex max-w-6xl items-center justify-center rounded-[28px] border border-slate-200 bg-white p-10 shadow-[0_20px_60px_-24px_rgba(15,23,42,0.18)]">
+          <div className="flex flex-col items-center text-center">
+            <div className="mb-4 h-10 w-10 animate-spin rounded-full border-2 border-slate-200 border-t-slate-900"></div>
+            <h1 className="text-xl font-semibold text-slate-900">Loading Meetings...</h1>
+            <p className="mt-2 text-sm text-slate-500">Gathering your upcoming sessions.</p>
+          </div>
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gray-100">
-      <div className="max-w-6xl mx-auto px-6 py-10">
-        <div className="flex items-center justify-between mb-8">
-          <h1 className="text-4xl font-bold text-gray-800">Meetings</h1>
+    <div className="min-h-screen bg-slate-50">
+      <div className="mx-auto max-w-6xl px-4 py-8 sm:px-6 lg:px-8 lg:py-10">
+        <div className="mb-8 flex flex-col gap-4 rounded-[28px] border border-slate-200 bg-white p-6 shadow-[0_20px_60px_-24px_rgba(15,23,42,0.18)] sm:p-8 lg:flex-row lg:items-end lg:justify-between">
+          <div>
+            <p className="text-sm font-medium text-slate-500">Session planner</p>
+            <h1 className="mt-1 text-3xl font-semibold text-slate-900">Meetings</h1>
+            <p className="mt-2 text-sm leading-7 text-slate-600">Plan your conversations and keep everything easy to review later.</p>
+          </div>
 
           <button
             onClick={() => setIsOpen(true)}
-            className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-medium transition"
+            className="rounded-2xl bg-slate-900 px-5 py-3 text-sm font-semibold text-white transition duration-200 hover:bg-slate-700 active:translate-y-[1px]"
           >
             + Add Meeting
           </button>
         </div>
 
-        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-8">
-          <div className="mb-8">
+        <div className="mb-8 flex flex-col gap-4 rounded-[24px] border border-slate-200 bg-white p-4 shadow-sm sm:flex-row sm:items-center sm:justify-between sm:p-5">
+          <div className="w-full sm:max-w-md">
             <input
               type="text"
               placeholder="Search meetings..."
-              className="w-full md:w-96 px-4 py-3 border border-gray-300 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition"
+              className="w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-700 shadow-sm outline-none transition focus:border-slate-400 focus:bg-white focus:ring-2 focus:ring-slate-200"
               onChange={(e) => setSearch(e.target.value)}
               value={search}
             />
           </div>
 
-          <div>
+          <div className="w-full sm:max-w-[220px]">
             <select
               value={sort}
               onChange={(e) => setSort(e.target.value)}
-              className="w-full md:w-60 px-4 py-3 border border-gray-300 rounded-xl shadow-sm bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition"
+              className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-700 shadow-sm outline-none transition focus:border-slate-400 focus:ring-2 focus:ring-slate-200"
             >
               <option value="">Sort By</option>
               <option value="az">Title (A-Z)</option>
@@ -186,78 +196,75 @@ function Meetings() {
           </div>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
           {meetings.length === 0 ? (
-            <div className="col-span-full text-center py-10">
-              <h2 className="text-2xl font-semibold text-gray-500">
-                No Meetings Found
-              </h2>
-              <p className="text-gray-400 mt-2">
-                Click "Add Meeting" to create your first meeting.
-              </p>
+            <div className="col-span-full rounded-[24px] border border-dashed border-slate-300 bg-white p-10 text-center shadow-sm">
+              <h2 className="text-xl font-semibold text-slate-800">No Meetings Found</h2>
+              <p className="mt-2 text-sm leading-7 text-slate-500">Click “Add Meeting” to create your first session.</p>
             </div>
           ) : (
             meetings.map((meeting) => (
               <div
                 key={meeting._id}
-                className="bg-white rounded-xl shadow-md p-6 hover:shadow-lg transition"
+                className="rounded-[24px] border border-slate-200 bg-white p-6 shadow-sm transition duration-200 hover:-translate-y-1 hover:shadow-md"
               >
-                <h2 className="text-2xl font-bold text-gray-800 mb-4">
-                  {meeting.title}
-                </h2>
+                <div className="mb-4 flex items-start justify-between gap-3">
+                  <div>
+                    <h2 className="text-xl font-semibold text-slate-900">{meeting.title}</h2>
+                    <p className="mt-1 text-sm text-slate-500">{meeting.client ? meeting.client.name : "No Client"}</p>
+                  </div>
+                  <div className="rounded-full border border-slate-200 bg-slate-50 px-3 py-1 text-xs font-medium uppercase tracking-[0.2em] text-slate-600">
+                    {meeting.status || "Scheduled"}
+                  </div>
+                </div>
 
-                <div className="space-y-2 text-gray-600">
+                <div className="space-y-3 text-sm text-slate-600">
                   <p>
-                    <span className="font-semibold">Client:</span>{" "}
-                    {meeting.client ? meeting.client.name : "No Client"}
+                    <span className="font-semibold text-slate-800">Date:</span> {meeting.date}
                   </p>
                   <p>
-                    <span className="font-semibold">Date:</span> {meeting.date}
+                    <span className="font-semibold text-slate-800">Time:</span> {meeting.time}
                   </p>
                   <p>
-                    <span className="font-semibold">Time:</span> {meeting.time}
+                    <span className="font-semibold text-slate-800">Status:</span> {meeting.status}
                   </p>
                   <p>
-                    <span className="font-semibold">Status:</span> {meeting.status}
-                  </p>
-                  <p>
-                    <span className="font-semibold">Description:</span>{" "}
+                    <span className="font-semibold text-slate-800">Description:</span>{" "}
                     {meeting.description}
                   </p>
                 </div>
 
-                <div className="grid grid-cols-2 gap-3 mt-6">
-
+                <div className="mt-6 grid grid-cols-2 gap-3">
                   <button
                       onClick={() => navigate(`/meeting/${meeting._id}`)}
-                      className="bg-green-600 hover:bg-green-700 text-white py-2 rounded-lg transition"
+                      className="rounded-2xl border border-emerald-200 bg-emerald-50 px-3 py-2 text-sm font-semibold text-emerald-700 transition hover:bg-emerald-100"
                   >
-                      Join Meeting
+                      Join
                   </button>
 
                   <button
                       onClick={() => navigate(`/meetings/${meeting._id}/transcript`)}
-                      className="bg-blue-600 hover:bg-blue-700 text-white py-2 rounded-lg transition"
+                      className="rounded-2xl border border-sky-200 bg-sky-50 px-3 py-2 text-sm font-semibold text-sky-700 transition hover:bg-sky-100"
                   >
-                      View Transcript
+                      Transcript
                   </button>
 
                   <button
                       onClick={() => handleEdit(meeting)}
-                      className="bg-yellow-500 hover:bg-yellow-600 text-white py-2 rounded-lg transition"
+                      className="rounded-2xl border border-amber-200 bg-amber-50 px-3 py-2 text-sm font-semibold text-amber-700 transition hover:bg-amber-100"
                   >
                       Edit
                   </button>
 
                   <button
                       onClick={() => handleDelete(meeting._id)}
-                      className="bg-red-500 hover:bg-red-600 text-white py-2 rounded-lg transition"
+                      className="rounded-2xl border border-rose-200 bg-rose-50 px-3 py-2 text-sm font-semibold text-rose-700 transition hover:bg-rose-100"
                   >
                       Delete
                   </button>
                   <button
                     onClick={() => navigate(`/meetings/${meeting._id}/summary`)}
-                    className="bg-purple-600 hover:bg-purple-700 text-white py-2 rounded-lg transition"
+                    className="col-span-2 rounded-2xl border border-violet-200 bg-violet-50 px-3 py-2 text-sm font-semibold text-violet-700 transition hover:bg-violet-100"
                 >
                     View Summary
                 </button>
@@ -269,59 +276,59 @@ function Meetings() {
         </div>
 
         {isOpen && (
-          <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-            <div className="bg-white w-full max-w-xl rounded-2xl shadow-2xl p-8">
-              <div className="flex items-center justify-between mb-8">
-                <h2 className="text-3xl font-bold text-gray-800">
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/50 px-4 py-6">
+            <div className="w-full max-w-xl overflow-hidden rounded-[28px] border border-slate-200 bg-white shadow-2xl">
+              <div className="flex items-center justify-between border-b border-slate-200 px-6 py-5 sm:px-8">
+                <h2 className="text-2xl font-semibold text-slate-900">
                   {editingId ? "Edit Meeting" : "Add New Meeting"}
                 </h2>
 
                 <button
                   onClick={closeModal}
-                  className="text-3xl text-gray-500 hover:text-red-500"
+                  className="rounded-full p-2 text-2xl text-slate-500 transition hover:bg-slate-100 hover:text-slate-700"
                 >
                   &times;
                 </button>
               </div>
 
-              <div className="space-y-5">
+              <div className="space-y-4 px-6 py-6 sm:px-8">
                 <input
                   value={title}
                   onChange={(e) => setTitle(e.target.value)}
                   type="text"
                   placeholder="Meeting Title"
-                  className="w-full border rounded-lg px-4 py-3 outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-700 shadow-sm outline-none transition focus:border-slate-400 focus:bg-white focus:ring-2 focus:ring-slate-200"
                 />
                 <textarea
                   value={description}
                   onChange={(e) => setDescription(e.target.value)}
                   rows="3"
                   placeholder="Description"
-                  className="w-full border rounded-lg px-4 py-3 resize-none outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-700 shadow-sm outline-none transition focus:border-slate-400 focus:bg-white focus:ring-2 focus:ring-slate-200"
                 />
                 <input
                   value={date}
                   onChange={(e) => setDate(e.target.value)}
                   type="date"
-                  className="w-full border rounded-lg px-4 py-3 outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-700 shadow-sm outline-none transition focus:border-slate-400 focus:bg-white focus:ring-2 focus:ring-slate-200"
                 />
                 <input
                   value={time}
                   onChange={(e) => setTime(e.target.value)}
                   type="time"
-                  className="w-full border rounded-lg px-4 py-3 outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-700 shadow-sm outline-none transition focus:border-slate-400 focus:bg-white focus:ring-2 focus:ring-slate-200"
                 />
                 <input
                   value={status}
                   onChange={(e) => setStatus(e.target.value)}
                   type="text"
                   placeholder="Status"
-                  className="w-full border rounded-lg px-4 py-3 outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-700 shadow-sm outline-none transition focus:border-slate-400 focus:bg-white focus:ring-2 focus:ring-slate-200"
                 />
                 <select
                   value={client}
                   onChange={(e) => setClient(e.target.value)}
-                  className="w-full border rounded-lg px-4 py-3 outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-700 shadow-sm outline-none transition focus:border-slate-400 focus:bg-white focus:ring-2 focus:ring-slate-200"
                 >
                   <option value="">Select Client</option>
                   {clients.map((client) => (
@@ -332,16 +339,16 @@ function Meetings() {
                 </select>
               </div>
 
-              <div className="flex justify-end gap-4 mt-8">
+              <div className="flex flex-col-reverse gap-3 border-t border-slate-200 bg-slate-50 px-6 py-5 sm:flex-row sm:justify-end sm:px-8">
                 <button
                   onClick={closeModal}
-                  className="px-6 py-3 border rounded-lg hover:bg-gray-100"
+                  className="rounded-2xl border border-slate-200 bg-white px-5 py-3 text-sm font-semibold text-slate-700 transition hover:bg-slate-100"
                 >
                   Cancel
                 </button>
                 <button
                   onClick={handleSubmit}
-                  className="px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-lg"
+                  className="rounded-2xl bg-slate-900 px-5 py-3 text-sm font-semibold text-white transition hover:bg-slate-700"
                 >
                   {editingId ? "Update Meeting" : "Save Meeting"}
                 </button>
