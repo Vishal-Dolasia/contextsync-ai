@@ -7,6 +7,8 @@ import Clients from "./pages/Clients.jsx";
 import Meetings from "./pages/Meetings.jsx"
 import MeetingRoom from "./pages/MeetingRoom.jsx";
 import Transcript from "./pages/Transcript.jsx";
+import Summary from "./pages/Summary.jsx";
+
 
 function App(){
   return(
@@ -39,8 +41,14 @@ function App(){
               <ProtectedRoute>
                   <Transcript />
               </ProtectedRoute>
-          }
-      />  
+        }/>
+        <Route
+        path="/meetings/:id/summary"
+        element={
+            <ProtectedRoute>
+                <Summary />
+            </ProtectedRoute>
+        }/>  
       </Routes>
   )
 }

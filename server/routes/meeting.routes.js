@@ -2,6 +2,9 @@ import express from 'express';
 import authMiddleware from '../middleware/auth.middleware.js';
 import meetingModel from '../models/meeting.model.js';
 import transcriptModel from "../models/transcript.model.js";
+import Summary from "../models/summary.model.js";
+import Transcript from "../models/transcript.model.js";
+import { generateMeetingSummary } from "../services/ai.service.js";
 
 const router = express.Router();
 
@@ -196,5 +199,101 @@ router.delete('/:id', authMiddleware, async (req, res) => {
     return res.status(500).json({ message: 'Server error' });
   }
 });
+
+
+router.post("/:id/generate-summary", authMiddleware, async (req, res) => {
+    try {
+        const meetingId = req.params.id;
+        const owner = req.user.id;
+
+        // Verify meeting ownership
+        const meeting = await meetingModel.findOne({
+            _id: meetingId,
+            owner,
+        });
+
+        if (!meeting) {
+            return res.status(404).json({
+                message: "Meeting not found",
+            });
+        }
+
+        // Get transcript
+        const transcriptDoc = await Transcript.findOne({ meetingId });
+
+        if (!transcriptDoc || transcriptDoc.transcript.length === 0) {
+            return res.status(404).json({
+                message: "Transcript not found",
+            });
+        }
+
+        // Generate AI summary
+        const aiResult = await generateMeetingSummary(
+            transcriptDoc.transcript
+        );
+
+        // Save summary
+        const summary = await Summary.create({
+            meetingId,
+            summary: aiResult.summary,
+            actionItems: aiResult.actionItems,
+            keyDecisions: aiResult.keyDecisions,
+            risks: aiResult.risks,
+            nextSteps: aiResult.nextSteps,
+        });
+
+        return res.status(200).json({
+            message: "Summary generated successfully",
+            summary,
+        });
+
+    } catch (err) {
+        console.error(err);
+
+        return res.status(500).json({
+            message: err.message,
+        });
+    }
+});
+
+router.get("/:id/summary", authMiddleware, async (req, res) => {
+    try {
+        const meetingId = req.params.id;
+        const owner = req.user.id;
+
+        const meeting = await meetingModel.findOne({
+            _id: meetingId,
+            owner,
+        });
+
+        if (!meeting) {
+            return res.status(404).json({
+                message: "Meeting not found",
+            });
+        }
+
+        const summary = await Summary.findOne({
+            meetingId,
+        });
+
+        if (!summary) {
+            return res.status(404).json({
+                message: "Summary not found",
+            });
+        }
+
+        return res.status(200).json({
+            message: "Summary fetched successfully",
+            summary,
+        });
+
+    } catch (err) {
+        return res.status(500).json({
+            message: err.message,
+        });
+    }
+});
+
+
 
 export default router;

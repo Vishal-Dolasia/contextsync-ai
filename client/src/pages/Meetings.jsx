@@ -255,6 +255,12 @@ function Meetings() {
                   >
                       Delete
                   </button>
+                  <button
+                    onClick={() => navigate(`/meetings/${meeting._id}/summary`)}
+                    className="bg-purple-600 hover:bg-purple-700 text-white py-2 rounded-lg transition"
+                >
+                    View Summary
+                </button>
 
               </div>
                 </div>
