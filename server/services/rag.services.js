@@ -5,8 +5,8 @@ const groq = new Groq({
     apiKey : process.env.GROQ_API_KEY
 })
 
-export const answerMeetingQuestion = async(question)=>{
-    const relevantChunks = await searchRelevantChunks(question);
+export const answerMeetingQuestion = async(question,meetingId)=>{
+    const relevantChunks = await searchRelevantChunks(question,meetingId);
 
     if (!relevantChunks || relevantChunks.length === 0) {
         return "I couldn't find relevant information in the meetings.";

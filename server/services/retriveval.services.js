@@ -1,9 +1,8 @@
-import { encodeBase64 } from "bcryptjs";
 import embeddingModel from "../models/embedding.model.js";
 import { generateEmbedding } from "./embedding.services.js";
-import meetingModel from "../models/meeting.model.js";
+import mongoose from "mongoose";
 
-export const searchRelevantChunks = async (question) => {
+export const searchRelevantChunks = async (question,meetingId) => {
     const questionEmbedding = await generateEmbedding(question);
     const queryVector = Array.from(questionEmbedding);
 
@@ -14,7 +13,10 @@ export const searchRelevantChunks = async (question) => {
                 path : "embedding",
                 queryVector : queryVector,
                 numCandidates : 20,
-                limit : 3
+                limit : 3,
+                filter:{
+                    meetingId : new mongoose.Types.ObjectId(meetingId)
+                }
             }
         },
         {

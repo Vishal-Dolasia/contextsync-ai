@@ -8,6 +8,35 @@ function Transcript() {
     const [transcript, setTranscript] = useState([]);
     const [loading, setLoading] = useState(true);
     const navigate = useNavigate();
+    const [question, setQuestion] = useState("");
+    const [answer, setAnswer] = useState("");
+    const [aiLoading, setAiLoading] = useState(false);
+    const [aiError, setAiError] = useState("");
+    const askAI = async () => {
+        if (!question.trim()) {
+            return;
+        }
+
+        try {
+            setAiLoading(true);
+            setAiError("");
+            setAnswer("");
+
+            const response = await api.post("/api/ai/ask", {
+                meetingId: id,
+                question: question.trim()
+            });
+
+            setAnswer(response.data.answer);
+
+        } catch (err) {
+            console.log(err);
+            setAiError("Unable to get an answer. Please try again.");
+        } finally {
+            setAiLoading(false);
+        }
+    };
+
 
     const fetchTranscript = async () => {
         try {
@@ -23,7 +52,7 @@ function Transcript() {
 
     useEffect(() => {
         fetchTranscript();
-    }, []);
+    }, [id]);
 
 
     if (loading) {
@@ -54,6 +83,68 @@ function Transcript() {
                 <p className="text-sm font-medium text-slate-500">Meeting notes</p>
                 <h1 className="mt-2 text-3xl font-semibold text-slate-900">Meeting Transcript</h1>
                 <p className="mt-2 text-sm leading-7 text-slate-600">A cleaner, chat-like view of each spoken message and timestamp.</p>
+            </div>
+
+            <div className="mb-8 rounded-[24px] border border-violet-200 bg-violet-50/50 p-5 sm:p-6">
+
+            <div className="mb-4">
+                <p className="text-sm font-medium text-violet-600">
+                    AI Assistant
+                </p>
+
+                <h2 className="mt-1 text-xl font-semibold text-slate-900">
+                    Ask anything about this meeting
+                </h2>
+
+                <p className="mt-1 text-sm text-slate-600">
+                    Ask questions about what was discussed, decisions,
+                    action items, or anything mentioned in the meeting.
+                </p>
+            </div>
+
+            <div className="flex flex-col gap-3 sm:flex-row">
+
+                <input
+                    type="text"
+                    value={question}
+                    onChange={(e) => setQuestion(e.target.value)}
+                    onKeyDown={(e) => {
+                        if (e.key === "Enter") {
+                            askAI();
+                        }
+                    }}
+                    placeholder="e.g. What did Rahul say about deployment?"
+                    className="flex-1 rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-700 outline-none transition focus:border-violet-400 focus:ring-2 focus:ring-violet-200"
+                />
+
+                <button
+                    onClick={askAI}
+                    disabled={aiLoading || !question.trim()}
+                    className="rounded-2xl bg-violet-600 px-5 py-3 text-sm font-semibold text-white transition hover:bg-violet-700 disabled:cursor-not-allowed disabled:opacity-50"
+                >
+                    {aiLoading ? "Thinking..." : "Ask AI"}
+                </button>
+
+            </div>
+
+                {aiError && (
+                    <p className="mt-3 text-sm font-medium text-rose-600">
+                        {aiError}
+                    </p>
+                )}
+
+                {answer && (
+                    <div className="mt-5 rounded-2xl border border-violet-200 bg-white p-5">
+                        <p className="text-xs font-semibold uppercase tracking-[0.2em] text-violet-600">
+                            AI Answer
+                        </p>
+
+                        <p className="mt-3 text-sm leading-7 text-slate-700">
+                            {answer}
+                        </p>
+                    </div>
+                )}
+
             </div>
 
             {transcript.length === 0 ? (

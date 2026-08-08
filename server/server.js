@@ -7,7 +7,7 @@ import clientRoutes from './routes/client.routes.js';
 import meetingRoutes from './routes/meeting.routes.js'
 import livekitRoutes from './routes/livekit.routes.js';
 import recordingRoutes from './routes/recording.routes.js';
-
+import aiRoutes from './routes/ai.routes.js';
 
 
 dotenv.config();
@@ -36,6 +36,7 @@ app.use('/api/clients',clientRoutes);
 app.use('/api/meetings',meetingRoutes);
 app.use('/api/livekit',livekitRoutes);
 app.use('/api/recording',recordingRoutes);
+app.use('/api/ai',aiRoutes)
 
 
 
