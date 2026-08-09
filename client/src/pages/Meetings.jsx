@@ -20,25 +20,21 @@ function Meetings() {
   const navigate = useNavigate();
 
   const fetchMeetings = async () => {
-    try {
-      const response = await api.get(
-        `/api/meetings?search=${debouncedSearch}&sort=${sort}`
-      );
-      setMeetings(response.data.data);
-    } catch (err) {
-      console.log(err);
-    }
+      try {
+          setLoading(true);
+
+          const response = await api.get(
+              `/api/meetings?search=${debouncedSearch}&sort=${sort}`
+          );
+
+          setMeetings(response.data.data);
+      } catch (err) {
+          console.log(err);
+      } finally {
+          setLoading(false);
+      }
   };
 
-  const loadMeetings = async () => {
-    setLoading(true);
-    try {
-      await fetchMeetings();
-    } catch (err) {
-      console.log(err);
-    }
-    setLoading(false);
-  };
 
   const getAllClients = async () => {
     try {
@@ -50,12 +46,11 @@ function Meetings() {
   };
 
   useEffect(() => {
-    fetchMeetings();
+     fetchMeetings();
   }, [debouncedSearch, sort]);
 
   useEffect(() => {
-    loadMeetings();
-    getAllClients();
+     getAllClients();
   }, []);
 
   useEffect(() => {
@@ -95,7 +90,7 @@ function Meetings() {
         });
       }
 
-      fetchMeetings();
+      await fetchMeetings();
       closeModal();
     } catch (err) {
       console.log(err);

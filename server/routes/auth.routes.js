@@ -12,6 +12,12 @@ const router = express.Router();
 
 
 router.post('/register',async (req,res)=>{
+    if (process.env.ALLOW_REGISTRATION !== "true") {
+        return res.status(403).json({
+            message: "Registration is currently disabled."
+        });
+    }
+
     const {name,email,password,role} = req.body;
 
     const email_present = await UserModel.findOne({email});

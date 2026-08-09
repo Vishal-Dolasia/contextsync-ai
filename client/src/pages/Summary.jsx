@@ -8,21 +8,31 @@ function Summary() {
 
     const [summary, setSummary] = useState(null);
     const [loading, setLoading] = useState(true);
+    const [error, setError] = useState("");
 
-    const fetchSummary = async () => {
-        try {
-            const response = await api.get(`/api/meetings/${id}/summary`);
-            setSummary(response.data.summary);
-        } catch (err) {
-            console.log(err);
-        }
+const fetchSummary = async () => {
+    try {
+        setLoading(true);
+        setError("");
 
+        const response = await api.get(`/api/meetings/${id}/summary`);
+
+        setSummary(response.data.summary);
+    } catch (err) {
+        console.log(err);
+
+        setError(
+            err.response?.data?.message || "Failed to load summary"
+        );
+    } finally {
         setLoading(false);
-    };
-
+    }
+};
     useEffect(() => {
-        fetchSummary();
-    }, []);
+        if (id) {
+            fetchSummary();
+        }
+    }, [id]);
 
     if (loading) {
         return (
@@ -33,6 +43,30 @@ function Summary() {
                         <h1 className="text-xl font-semibold text-slate-900">Loading Summary...</h1>
                         <p className="mt-2 text-sm text-slate-500">Preparing the AI-generated recap.</p>
                     </div>
+                </div>
+            </div>
+        );
+    }
+
+
+    if (error) {
+        return (
+            <div className="min-h-screen bg-slate-50 flex items-center justify-center px-4">
+                <div className="rounded-[28px] border border-slate-200 bg-white p-8 text-center shadow-sm">
+                    <h1 className="text-xl font-semibold text-slate-900">
+                        Summary Not Available
+                    </h1>
+
+                    <p className="mt-2 text-sm text-slate-500">
+                        {error}
+                    </p>
+
+                    <button
+                        onClick={() => navigate("/meetings")}
+                        className="mt-6 rounded-2xl bg-slate-900 px-5 py-3 text-sm font-semibold text-white"
+                    >
+                        Back to Meetings
+                    </button>
                 </div>
             </div>
         );

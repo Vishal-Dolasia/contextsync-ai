@@ -5,6 +5,7 @@ import transcriptModel from "../models/transcript.model.js";
 import Summary from "../models/summary.model.js";
 import Transcript from "../models/transcript.model.js";
 import { generateMeetingSummary } from "../services/ai.service.js";
+import { storingChunksInEmbeddingModel } from "../services/embeddingPipeline.services.js";
 
 const router = express.Router();
 
@@ -154,6 +155,39 @@ router.get('/:id/transcript',authMiddleware,async(req,res)=>{
   }
 })
 
+router.post('/:id/generate-embeddings', authMiddleware, async (req, res) => {
+  try {
+    const meetingId = req.params.id;
+    const owner = req.user.id;
+
+    const meeting = await meetingModel.findOne({
+      _id: meetingId,
+      owner,
+    });
+
+    if (!meeting) {
+      return res.status(404).json({
+        message: 'Meeting not found',
+      });
+    }
+
+    const result = await storingChunksInEmbeddingModel(meetingId);
+
+    if (!result) {
+      return res.status(404).json({
+        message: 'Transcript not found',
+      });
+    }
+
+    return res.status(200).json(result);
+  } catch (err) {
+    console.error(err);
+
+    return res.status(500).json({
+      message: err.message,
+    });
+  }
+});
 
 // Update meeting
 router.patch('/:id', authMiddleware, async (req, res) => {
