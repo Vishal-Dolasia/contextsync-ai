@@ -1,5 +1,7 @@
 node_modules
 .env
+.env.*
+!.env.example
 dist
 26-07-26.md
 ContextSyncAI_Detailed_15_Day_Guide.md
