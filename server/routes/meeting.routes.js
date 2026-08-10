@@ -101,7 +101,7 @@ router.get('/:id', authMiddleware, async (req, res) => {
   const owner = req.user.id;
 
   try {
-    const meeting = await meetingModel.findOne({ _id: meetingId, owner });
+    const meeting = await meetingModel.findOne({ _id: meetingId});
     if (meeting === null) {
       return res.status(404).json({ message: 'Meeting not found' });
     } else {
