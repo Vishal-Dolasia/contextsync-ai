@@ -6,6 +6,9 @@ import Summary from "../models/summary.model.js";
 import Transcript from "../models/transcript.model.js";
 import { generateMeetingSummary } from "../services/ai.service.js";
 import { storingChunksInEmbeddingModel } from "../services/embeddingPipeline.services.js";
+import agentMiddleware from '../middleware/agent.middleware.js';
+
+
 
 const router = express.Router();
 
@@ -155,14 +158,12 @@ router.get('/:id/transcript',authMiddleware,async(req,res)=>{
   }
 })
 
-router.post('/:id/generate-embeddings', authMiddleware, async (req, res) => {
+router.post('/:id/generate-embeddings', agentMiddleware, async (req, res) => {
   try {
     const meetingId = req.params.id;
-    const owner = req.user.id;
 
     const meeting = await meetingModel.findOne({
       _id: meetingId,
-      owner,
     });
 
     if (!meeting) {
@@ -235,15 +236,12 @@ router.delete('/:id', authMiddleware, async (req, res) => {
 });
 
 
-router.post("/:id/generate-summary", authMiddleware, async (req, res) => {
+router.post("/:id/generate-summary", agentMiddleware, async (req, res) => {
     try {
         const meetingId = req.params.id;
-        const owner = req.user.id;
 
-        // Verify meeting ownership
         const meeting = await meetingModel.findOne({
             _id: meetingId,
-            owner,
         });
 
         if (!meeting) {

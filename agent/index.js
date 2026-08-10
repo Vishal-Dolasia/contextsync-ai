@@ -31,12 +31,71 @@ export default defineAgent({
         const transcript = [];
         ctx.addShutdownCallback(async () => {
             try {
+                const meetingId = ctx.room.name;
+
                 await Transcript.create({
-                    meetingId: ctx.room.name,
+                    meetingId,
                     transcript,
                 });
 
-                console.log("✅ Transcript saved successfully");
+                console.log(`✅ Transcript saved successfully for meeting: ${meetingId}`);
+
+                // Generate summary
+                try {
+                    console.log(`⏳ Generating summary for meeting: ${meetingId}`);
+
+                    const response = await fetch(
+                        `${process.env.BACKEND_URL}/api/meetings/${meetingId}/generate-summary`,
+                        {
+                            method: "POST",
+                            headers: {
+                                "Content-Type": "application/json",
+                                "x-agent-secret": process.env.AGENT_INTERNAL_SECRET,
+                            },
+                        }
+                    );
+
+                    const data = await response.json();
+
+                    if (!response.ok) {
+                        throw new Error(
+                            `Summary API returned ${response.status}: ${JSON.stringify(data)}`
+                        );
+                    }
+
+                    console.log("✅ Summary generated successfully");
+                } catch (err) {
+                    console.error("❌ Summary generation failed:", err);
+                }
+
+                // Generate embeddings
+                try {
+                    console.log(`⏳ Generating embeddings for meeting: ${meetingId}`);
+
+                    const response = await fetch(
+                        `${process.env.BACKEND_URL}/api/meetings/${meetingId}/generate-embeddings`,
+                        {
+                            method: "POST",
+                            headers: {
+                                "Content-Type": "application/json",
+                                "x-agent-secret": process.env.AGENT_INTERNAL_SECRET,
+                            },
+                        }
+                    );
+
+                    const data = await response.json();
+
+                    if (!response.ok) {
+                        throw new Error(
+                            `Embedding API returned ${response.status}: ${JSON.stringify(data)}`
+                        );
+                    }
+
+                    console.log("✅ Embeddings generated successfully");
+                } catch (err) {
+                    console.error("❌ Embedding generation failed:", err);
+                }
+
             } catch (err) {
                 console.error("❌ Failed to save transcript:", err);
             }
