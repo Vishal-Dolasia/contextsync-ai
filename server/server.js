@@ -8,7 +8,7 @@ import meetingRoutes from './routes/meeting.routes.js'
 import livekitRoutes from './routes/livekit.routes.js';
 import recordingRoutes from './routes/recording.routes.js';
 import aiRoutes from './routes/ai.routes.js';
-
+import dns from 'node:dns';
 
 dotenv.config();
 
@@ -19,6 +19,7 @@ app.use(express.json());
 app.use(cors());
 const PORT =process.env.PORT || 5000;
 
+dns.setServers(['1.1.1.1', '8.8.8.8']);
 async function connectDB(){
     try{
         await mongoose.connect(process.env.MONGO_URI);

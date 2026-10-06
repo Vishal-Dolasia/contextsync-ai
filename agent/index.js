@@ -1,20 +1,17 @@
 import dotenv from "dotenv";
 import connectDB from "./db/connect.js"
 dotenv.config();
-
 import Transcript from "./models/transcript.model.js";
-
 import { defineAgent, cli, ServerOptions } from "@livekit/agents";
 import { STTv2 } from "@livekit/agents-plugin-deepgram";
 import mongoose from "mongoose";
-
 import {
     AudioStream,
     RoomEvent,
     TrackKind,
 } from "@livekit/rtc-node";
-
 import { fileURLToPath } from "url";
+
 
 export default defineAgent({
     entry: async (ctx) => {
