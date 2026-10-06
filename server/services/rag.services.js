@@ -1,5 +1,6 @@
 import { Groq } from "groq-sdk";
 import { searchRelevantChunks } from "./retriveval.services.js";
+import { GROQ_CHAT_MODEL } from "../config/ai.config.js";
 
 const groq = new Groq({
     apiKey : process.env.GROQ_API_KEY
@@ -18,7 +19,7 @@ export const answerMeetingQuestion = async(question,meetingId)=>{
         .join("\n\n");
 
     const completion = await groq.chat.completions.create({
-            model: "llama-3.3-70b-versatile",
+            model: GROQ_CHAT_MODEL,
 
             messages: [
                 {

@@ -1,4 +1,5 @@
 import Groq from "groq-sdk";
+import { GROQ_CHAT_MODEL } from "../config/ai.config.js";
 
 const groq = new Groq({
     apiKey: process.env.GROQ_API_KEY,
@@ -26,7 +27,7 @@ export const generateMeetingSummary = async(transcript)=>{
     `;
 
     const completion = await groq.chat.completions.create({
-        model : "llama-3.3-70b-versatile",
+        model : GROQ_CHAT_MODEL,
         messages : [
             {
                 role : "user",

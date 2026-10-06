@@ -181,6 +181,8 @@ contextsync-ai/
 |-- server/
 |   |-- server.js
 |   |-- package.json
+|   |-- config/
+|   |   `-- ai.config.js
 |   |-- middleware/
 |   |   |-- auth.middleware.js
 |   |   `-- agent.middleware.js
@@ -307,10 +309,10 @@ The backend currently stores:
 
 ### Summary generation
 
-`server/services/ai.service.js` sends the transcript to Groq using:
+`server/services/ai.service.js` sends the transcript to Groq using `GROQ_CHAT_MODEL`, which defaults to:
 
 ```text
-llama-3.3-70b-versatile
+openai/gpt-oss-120b
 ```
 
 The prompt requires valid JSON with:
@@ -380,6 +382,7 @@ LIVEKIT_URL=your_livekit_cloud_url
 LIVEKIT_API_KEY=your_livekit_api_key
 LIVEKIT_API_SECRET=your_livekit_api_secret
 GROQ_API_KEY=your_groq_api_key
+GROQ_CHAT_MODEL=openai/gpt-oss-120b
 AGENT_INTERNAL_SECRET=shared_secret_for_agent_internal_calls
 ```
 
