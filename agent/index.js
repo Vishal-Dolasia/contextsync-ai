@@ -12,12 +12,21 @@ import {
 } from "@livekit/rtc-node";
 import { fileURLToPath } from "url";
 
+const AGENT_NAME = "contextsync-transcriber";
+
+const readParticipantName = (participant) => {
+    try {
+        return JSON.parse(participant.metadata || "{}").name || participant.identity;
+    } catch {
+        return participant.identity;
+    }
+};
 
 export default defineAgent({
     entry: async (ctx) => {
         await connectDB();
         console.log("Mongo state:", mongoose.connection.readyState);
-        console.log("Job received!");
+        console.log(`Job received for agent: ${AGENT_NAME}`);
 
         await ctx.connect();
 
@@ -103,39 +112,47 @@ export default defineAgent({
 
         ctx.room.on(RoomEvent.TrackSubscribed, async (track, publication, participant) => {
             if (track.kind !== TrackKind.KIND_AUDIO) return;
-            const speakerInfo = JSON.parse(participant.metadata);
+            const speakerName = readParticipantName(participant);
             console.log(`Subscribed to audio from ${participant.identity}`);
 
             const audioStream = new AudioStream(track);
             const reader = audioStream.getReader();
-
-            (async () => {
-                while (true) {
-                    const { value, done } = await reader.read();
-
-                    if (done) break;
-
-                    dgStream.pushFrame(value);
-                }
-
-                dgStream.flush();
-            })();
-            console.log("Audio stream created");
-            
             const dgStream = stt.stream();
+
             (async () => {
-                for await (const event of dgStream) {
+                try {
+                    while (true) {
+                        const { value, done } = await reader.read();
 
-                    if (event.type === 2) {
-                        transcript.push({
-                            speaker: speakerInfo.name,
-                            text: event.alternatives[0].text,
-                            timestamp: new Date(),
-                        });
+                        if (done) break;
 
-                        console.log(transcript);
+                        dgStream.pushFrame(value);
                     }
 
+                    dgStream.flush();
+                } catch (err) {
+                    console.error(`Audio stream failed for ${participant.identity}:`, err);
+                }
+            })();
+            console.log("Audio stream created");
+
+            (async () => {
+                try {
+                    for await (const event of dgStream) {
+
+                        if (event.type === 2) {
+                            transcript.push({
+                                speaker: speakerName,
+                                text: event.alternatives[0].text,
+                                timestamp: new Date(),
+                            });
+
+                            console.log(transcript);
+                        }
+
+                    }
+                } catch (err) {
+                    console.error(`Deepgram stream failed for ${participant.identity}:`, err);
                 }
             })();
 
@@ -147,10 +164,20 @@ export default defineAgent({
 });
 if (process.argv[1] === fileURLToPath(import.meta.url)) {
     await connectDB();
+    console.log(`Starting LiveKit agent worker: ${AGENT_NAME}`);
+    console.log("Agent env check:", {
+        livekitUrl: Boolean(process.env.LIVEKIT_URL),
+        livekitApiKey: Boolean(process.env.LIVEKIT_API_KEY),
+        livekitApiSecret: Boolean(process.env.LIVEKIT_API_SECRET),
+        deepgramApiKey: Boolean(process.env.DEEPGRAM_API_KEY),
+        backendUrl: Boolean(process.env.BACKEND_URL),
+        agentInternalSecret: Boolean(process.env.AGENT_INTERNAL_SECRET),
+        mongoUri: Boolean(process.env.MONGO_URI),
+    });
     cli.runApp(
         new ServerOptions({
             agent: fileURLToPath(import.meta.url),
-            agentName: "contextsync-transcriber",
+            agentName: AGENT_NAME,
         })
     );
 }

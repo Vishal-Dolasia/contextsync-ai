@@ -4,10 +4,15 @@ import dotenv from 'dotenv';
 import userModel from '../models/user.model.js';
 import authMiddleware from '../middleware/auth.middleware.js';
 
+dotenv.config();
 
+const AGENT_NAME = "contextsync-transcriber";
 
-const api = new LiveKitAPI();
-
+const api = new LiveKitAPI({
+    host: process.env.LIVEKIT_URL,
+    apiKey: process.env.LIVEKIT_API_KEY,
+    secret: process.env.LIVEKIT_API_SECRET,
+});
 
 
 const router = express.Router();
@@ -42,22 +47,29 @@ router.post('/token',authMiddleware,async (req,res)=>{
         const jwt = await token.toJwt();
 
 
-        await api.agentDispatch.createDispatch(
+        const dispatch = await api.agentDispatch.createDispatch(
             roomName,
-            "contextsync-transcriber",
+            AGENT_NAME,
             {
                 metadata: JSON.stringify({
                     userId:user._id.toString(),
                     userName : user.name,
                 }),
             }
-        )
+        );
+
+        console.log(
+            `[LiveKit] Dispatched agent "${AGENT_NAME}" to room "${roomName}": ${JSON.stringify(dispatch)}`
+        );
+
         return res.status(200).json({
             message:"Token generated successfully",
             token : jwt,
             url : process.env.LIVEKIT_URL,
+            dispatch,
         })
     }catch(err){
+        console.error("[LiveKit] Token or agent dispatch failed:", err);
         return res.status(500).json({
             message:`error: ${err.message}`,
         })
