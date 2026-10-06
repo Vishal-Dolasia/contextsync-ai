@@ -24,11 +24,17 @@ const readParticipantName = (participant) => {
 
 export default defineAgent({
     entry: async (ctx) => {
-        await connectDB();
-        console.log("Mongo state:", mongoose.connection.readyState);
         console.log(`Job received for agent: ${AGENT_NAME}`);
 
         await ctx.connect();
+        console.log(`Connected to room: ${ctx.room.name}`);
+
+        try {
+            await connectDB();
+            console.log("Mongo state:", mongoose.connection.readyState);
+        } catch (err) {
+            console.error("Agent MongoDB connection failed:", err);
+        }
 
         const stt = new STTv2({
             model: "flux-general-en",
@@ -108,7 +114,6 @@ export default defineAgent({
         });
 
         console.log("Deepgram initialized");
-        console.log(`Connected to room: ${ctx.room.name}`);
 
         ctx.room.on(RoomEvent.TrackSubscribed, async (track, publication, participant) => {
             if (track.kind !== TrackKind.KIND_AUDIO) return;
@@ -163,7 +168,6 @@ export default defineAgent({
     },
 });
 if (process.argv[1] === fileURLToPath(import.meta.url)) {
-    await connectDB();
     console.log(`Starting LiveKit agent worker: ${AGENT_NAME}`);
     console.log("Agent env check:", {
         livekitUrl: Boolean(process.env.LIVEKIT_URL),
