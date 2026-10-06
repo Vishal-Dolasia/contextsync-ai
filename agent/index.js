@@ -11,8 +11,47 @@ import {
     TrackKind,
 } from "@livekit/rtc-node";
 import { fileURLToPath } from "url";
+import http from "http";
 
 const AGENT_NAME = "contextsync-transcriber";
+const REQUIRED_ENV = [
+    "LIVEKIT_URL",
+    "LIVEKIT_API_KEY",
+    "LIVEKIT_API_SECRET",
+    "DEEPGRAM_API_KEY",
+    "MONGO_URI",
+    "BACKEND_URL",
+    "AGENT_INTERNAL_SECRET",
+];
+
+const validateEnv = () => {
+    const missing = REQUIRED_ENV.filter((key) => !process.env[key]);
+
+    if (missing.length > 0) {
+        throw new Error(`Missing required agent environment variables: ${missing.join(", ")}`);
+    }
+};
+
+const startHealthServer = () => {
+    const port = process.env.PORT;
+
+    if (!port) return;
+
+    const server = http.createServer((req, res) => {
+        if (req.url === "/healthz") {
+            res.writeHead(200, { "Content-Type": "application/json" });
+            res.end(JSON.stringify({ ok: true, agentName: AGENT_NAME }));
+            return;
+        }
+
+        res.writeHead(200, { "Content-Type": "text/plain" });
+        res.end("LiveKit agent worker is running\n");
+    });
+
+    server.listen(port, () => {
+        console.log(`Agent health server listening on port ${port}`);
+    });
+};
 
 const readParticipantName = (participant) => {
     try {
@@ -178,6 +217,8 @@ if (process.argv[1] === fileURLToPath(import.meta.url)) {
         agentInternalSecret: Boolean(process.env.AGENT_INTERNAL_SECRET),
         mongoUri: Boolean(process.env.MONGO_URI),
     });
+    validateEnv();
+    startHealthServer();
     cli.runApp(
         new ServerOptions({
             agent: fileURLToPath(import.meta.url),
